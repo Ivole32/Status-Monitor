@@ -1,0 +1,8 @@
+fastapi==0.116.1
+slowapi==0.1.9
+uvicorn==0.35.0
+
+flask==3.0.0
+requests==2.31.0
+
+mitmproxy==12.1.1
