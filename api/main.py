@@ -5,6 +5,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from core_functions.limiter import limiter
 
 from endpoints.endpoints import router as endpoints_router
+from endpoints.user_endpoints import router as user_endpoints_router
 
 app = FastAPI(
     docs_url="/docs",
@@ -32,3 +33,4 @@ async def add_security_headers(request: Request, call_next):
     return response
 
 app.include_router(endpoints_router)
+app.include_router(user_endpoints_router)
