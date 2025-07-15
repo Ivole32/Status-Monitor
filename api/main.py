@@ -1,3 +1,4 @@
+# API
 from fastapi import FastAPI, Request
 from slowapi.middleware import SlowAPIMiddleware
 
@@ -6,8 +7,9 @@ from core_functions.limiter import limiter
 from endpoints.endpoints import router as endpoints_router
 
 app = FastAPI(
-    redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json"
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 app.state.limiter = limiter
@@ -19,7 +21,7 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Expires"] = "0"
     response.headers["Pragma"] = "no-cache"
-    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Referrer-Policy"] = "same-origin"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"

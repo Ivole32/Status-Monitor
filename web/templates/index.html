@@ -168,9 +168,9 @@
             <div class="card">
                 <h3>API Endpunkte</h3>
                 <div class="api-info">
-                    <p><strong>Base URL:</strong> <code>http://localhost:8000/api/v1</code></p>
+                    <p><strong>Base URL:</strong> <code>http://localhost:8000/api/</code></p>
                     <p><strong>Status:</strong> <code>/api/status</code></p>
-                    <p><strong>Docs:</strong> <code>/docs</code></p>
+                    <p><strong>Docs:</strong> <code>/api/docs</code></p>
                 </div>
                 <button class="btn" onclick="openApiDocs()">API Dokumentation öffnen</button>
             </div>
@@ -224,7 +224,7 @@
         }
         
         function openApiDocs() {
-            window.open('http://localhost:8080/docs', '_blank');
+            window.open('http://localhost:8000/api/docs', '_blank');
         }
         
         // Auto-refresh alle 30 Sekunden

@@ -8,3 +8,8 @@ router = APIRouter()
 @limiter.limit("5/minute")
 def test_endpoint(request: Request):
     return {"message": "This is a test endpoint. You can access it 5 times per minute."}
+
+@router.get("/status")
+@limiter.limit("10/minute")
+def status_endpoint(request: Request):
+    return {"status": "Operational"}

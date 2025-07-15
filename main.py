@@ -1,4 +1,9 @@
+# Main
 from fastapi import FastAPI, Request, Response, HTTPException
+from slowapi.middleware import SlowAPIMiddleware
+
+from api.core_functions.limiter import limiter
+
 import httpx
 import logging
 
@@ -11,16 +16,51 @@ app = FastAPI(
     openapi_url=None
 )
 
-TARGET_API_1 = "http://localhost:8001"
-TARGET_API_2 = "http://localhost:8002"
+web_url = "http://localhost:8001"
+api_url = "http://localhost:8002"
+
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Expires"] = "0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Referrer-Policy"] = "same-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Access-Control-Allow-Methodes"] = "GET, POST"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+
+    return response
 
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 async def proxy(request: Request, path: str):
-    if path.startswith("api"):
+    print(f"Received request for path: {path}")
+    referer = request.headers.get('referer')
+    print(f"Referer of request: {referer}")
+    if referer and "/api/" in referer:
+        if path.startswith("openapi.json"):
+            target_url = f"{api_url}/openapi.json"
+            print(f"Target URL for OpenAPI: {target_url}")
+
+        elif path.startswith("redoc"):
+            target_url = f"{api_url}/redoc"
+            print(f"Target URL for Redoc: {target_url}")
+
+    elif path.startswith("api/"):
         sub_path = path[4:] if path.startswith("api/") else ""
-        target_url = f"{TARGET_API_2}/{sub_path}"
+        print(f"Sub-path for API: {sub_path}")
+        target_url = f"{api_url}/{sub_path}"
+        print(f"Target URL for API: {target_url}")
+
     else:
-        target_url = f"{TARGET_API_1}/{path}"
+        target_url = f"{web_url}/{path}"
+        print(f"Target URL for non-API: {target_url}")
 
     req_headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
     req_body = await request.body()
