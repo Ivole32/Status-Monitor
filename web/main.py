@@ -7,7 +7,7 @@ API_BASE_URL = "http://localhost:8000/api/"
 
 @app.route('/')
 def index():
-    """Hauptseite des Web-Interfaces"""
+    """Main page of the Web Interface"""
     return render_template('index.html')
 
 if __name__ == '__main__':

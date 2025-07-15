@@ -82,14 +82,14 @@ async def proxy(request: Request, path: str):
             headers=response_headers,
         )
     except httpx.TimeoutException:
-        logger.error(f"Timeout beim Aufruf von {target_url}")
-        raise HTTPException(status_code=504, detail=f"Gateway Timeout: Zielserver {target_url} nicht erreichbar")
+        logger.error(f"Timeout when calling {target_url}")
+        raise HTTPException(status_code=504, detail=f"Gateway Timeout: Target server {target_url} not reachable")
     except httpx.ConnectError:
-        logger.error(f"Verbindungsfehler zu {target_url}")
-        raise HTTPException(status_code=502, detail=f"Bad Gateway: Kann nicht zu {target_url} verbinden")
+        logger.error(f"Connection error to {target_url}")
+        raise HTTPException(status_code=502, detail=f"Bad Gateway: Cannot connect to {target_url}")
     except Exception as e:
-        logger.error(f"Unbekannter Fehler beim Proxy zu {target_url}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Interner Server Fehler: {str(e)}")
+        logger.error(f"Unknown error when proxying to {target_url}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

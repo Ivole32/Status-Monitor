@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -137,7 +137,7 @@
     <div class="container">
         <div class="header">
             <h1>Status Monitor</h1>
-            <p>Überwachung der API-Services</p>
+            <p>API Services Monitoring</p>
         </div>
         
         <div class="dashboard">
@@ -147,9 +147,9 @@
                     API Status
                 </h3>
                 <div id="api-status-content">
-                    <p>Lade Status...</p>
+                    <p>Loading status...</p>
                 </div>
-                <button class="btn" onclick="refreshStatus()">Status aktualisieren</button>
+                <button class="btn" onclick="refreshStatus()">Refresh Status</button>
             </div>
             
             <div class="card">
@@ -159,20 +159,20 @@
                 </h3>
                 <p><strong>Status:</strong> Online</p>
                 <p><strong>Port:</strong> 5000</p>
-                <p><strong>Uptime:</strong> <span id="uptime">Berechne...</span></p>
+                <p><strong>Uptime:</strong> <span id="uptime">Calculating...</span></p>
                 <div class="api-info">
                     <p><strong>Health Check:</strong> <code>/health</code></p>
                 </div>
             </div>
             
             <div class="card">
-                <h3>API Endpunkte</h3>
+                <h3>API Endpoints</h3>
                 <div class="api-info">
                     <p><strong>Base URL:</strong> <code>http://localhost:8000/api/</code></p>
                     <p><strong>Status:</strong> <code>/api/status</code></p>
                     <p><strong>Docs:</strong> <code>/api/docs</code></p>
                 </div>
-                <button class="btn" onclick="openApiDocs()">API Dokumentation öffnen</button>
+                <button class="btn" onclick="openApiDocs()">Open API Documentation</button>
             </div>
         </div>
     </div>
@@ -196,7 +196,7 @@
             const statusContent = document.getElementById('api-status-content');
             
             statusIndicator.className = 'status-indicator status-loading';
-            statusContent.innerHTML = '<p>Lade Status...</p>';
+            statusContent.innerHTML = '<p>Loading status...</p>';
             
             try {
                 const response = await fetch('/api/status');
@@ -206,19 +206,19 @@
                     statusIndicator.className = 'status-indicator status-online';
                     statusContent.innerHTML = `
                         <p><strong>Status:</strong> Online</p>
-                        <p><strong>Timestamp:</strong> ${new Date().toLocaleString('de-DE')}</p>
+                        <p><strong>Timestamp:</strong> ${new Date().toLocaleString('en-US')}</p>
                         <div class="api-info">
                             <pre>${JSON.stringify(data, null, 2)}</pre>
                         </div>
                     `;
                 } else {
-                    throw new Error(data.error || 'Unbekannter Fehler');
+                    throw new Error(data.error || 'Unknown error');
                 }
             } catch (error) {
                 statusIndicator.className = 'status-indicator status-offline';
                 statusContent.innerHTML = `
                     <p><strong>Status:</strong> Offline</p>
-                    <p class="error-message">Fehler: ${error.message}</p>
+                    <p class="error-message">Error: ${error.message}</p>
                 `;
             }
         }
@@ -227,7 +227,7 @@
             window.open('http://localhost:8000/api/docs', '_blank');
         }
         
-        // Auto-refresh alle 30 Sekunden
+        // Auto-refresh every 30 seconds
         setInterval(refreshStatus, 30000);
         setInterval(updateUptime, 1000);
         
