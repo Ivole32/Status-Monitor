@@ -3,56 +3,82 @@ import bcrypt
 
 class users:
     def __init__(self):
-        self.connection = sqlite3.connect('users.db')
-        self.cursor = self.connection.cursor()
+        self.db_path = 'users.db'
+        self._initialize_database()
 
-        self.cursor.execute(
+    def _initialize_database(self):
+        connection = sqlite3.connect(self.db_path)
+        cursor = connection.cursor()
+        
+        cursor.execute(
             '''CREATE TABLE IF NOT EXISTS users(
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             username TEXT NOT NULL,
             password_hash TEXT NOT NULL,
             email TEXT NOT NULL,
-            last_login TIMESTAMP,
+            last_login TIMESTAMP
             )'''
         )
-        self.connection.commit()
+        connection.commit()
+        connection.close()
+
+    def _get_connection(self):
+        """Get a new database connection for thread safety"""
+        return sqlite3.connect(self.db_path)
+
+    def __hash_password(self, password):
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        return password_hash
 
     def create_user(self, username, email, password):
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        password_hash = self.__hash_password(password)
         
-        self.cursor.execute(
+        connection = self._get_connection()
+        cursor = connection.cursor()
+        
+        cursor.execute(
             '''INSERT INTO users (username, email, password_hash)
             VALUES (?, ?, ?)''',
             (username, email, password_hash)
         )
-        self.connection.commit()
+        connection.commit()
+        connection.close()
 
     def modify_user(self, user_id, username=None, email=None, password=None):
+        connection = self._get_connection()
+        cursor = connection.cursor()
+        
         if username:
-            self.cursor.execute(
+            cursor.execute(
                 '''UPDATE users SET username = ? WHERE user_id = ?''',
                 (username, user_id)
             )
         if email:
-            self.cursor.execute(
+            cursor.execute(
                 '''UPDATE users SET email = ? WHERE user_id = ?''',
                 (email, user_id)
             )
         if password:
-            password_hash, password_salt = self.hash_password(password)
-            self.cursor.execute(
-                '''UPDATE users SET password_hash = ?, password_salt = ? WHERE user_id = ?''',
-                (password_hash, password_salt, user_id)
+            password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            cursor.execute(
+                '''UPDATE users SET password_hash = ? WHERE user_id = ?''',
+                (password_hash, user_id)
             )
-        self.connection.commit()
+        connection.commit()
+        connection.close()
 
     def delete_user(self, user_id):
-        self.cursor.execute(
+        connection = self._get_connection()
+        cursor = connection.cursor()
+        
+        cursor.execute(
             '''DELETE FROM users WHERE user_id = ?''',
             (user_id,)
         )
-        self.connection.commit()
+        connection.commit()
+        connection.close()
 
 if __name__ == "__main__":
     user_manager = users()
